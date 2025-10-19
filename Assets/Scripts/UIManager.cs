@@ -102,7 +102,14 @@ public class UIManager : MonoBehaviour
     public void ShowResult(bool result, bool show, Action onFinish = null)
     {
         CanvasGroup target = result ? _winpop : _lose;
-        ShowPopup(target, show, onFinish);
+        if (result)
+        {
+        }
+        else
+        {
+            AudioManager.Instance.PlayLose();
+        }
+         ShowPopup(target, show, onFinish);
     }
     public void ShowPopup(CanvasGroup canvas, bool show, Action onFinish = null)
     {

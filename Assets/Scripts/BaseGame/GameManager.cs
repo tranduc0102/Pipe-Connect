@@ -65,7 +65,11 @@ public class GameManager : MonoBehaviour
             {
                 if (_state == GameState.Win) return;
                 _state = GameState.Lose;
-                DOVirtual.DelayedCall(0.25f, () => UIManager.Instance.ShowResult(false, true));
+                DOVirtual.DelayedCall(0.25f, () =>
+                {
+                    AudioManager.Instance.PlayLose();
+                    UIManager.Instance.ShowResult(false, true);
+                });
             }
             UIManager.Instance.UpdateTime(Mathf.Max(0f, time));
         }
@@ -97,16 +101,20 @@ public class GameManager : MonoBehaviour
                 return;
         }
         _state = GameState.Win;
-        DOVirtual.DelayedCall(0.25f, () => UIManager.Instance.ShowResult(true, true));
+        DOVirtual.DelayedCall(0.25f, () => {
+            AudioManager.Instance.PlayWin();
+            UIManager.Instance.ShowResult(true, true);
+        }); 
     }
     void LoadLevel(int level)
     {
         string path = $"Levels/Level_{level}";
         TextAsset jsonFile = Resources.Load<TextAsset>(path);
         _state = GameState.Waiting;
+        int levelnew = level;
         if (jsonFile == null)
         {
-            level = Random.Range(10, 21);
+            levelnew = Random.Range(10, 21);
             path = $"Levels/Level_{level}";
             jsonFile = Resources.Load<TextAsset>(path);
         }
@@ -122,7 +130,7 @@ public class GameManager : MonoBehaviour
 
         generator.GenerateTiles();
         time = 120f;
-        UIManager.Instance.UpdateViewLevel(level, time);
+        UIManager.Instance.UpdateViewLevel(levelnew, time);
         foreach (var tileData in data.tiles)
         {
             Tile tile = generator.tiles.Find(t => t.GridPos.x == tileData.x && t.GridPos.y == tileData.y);

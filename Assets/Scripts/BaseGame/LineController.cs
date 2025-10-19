@@ -56,7 +56,6 @@ public class LineController : MonoBehaviour
         if (_lineRenderer != null)
         {
             _lineRenderer.positionCount = Tiles.Count;
-            AudioManager.Instance.PlayUp();
             _lineRenderer.SetPosition(Tiles.Count - 1, pos);
         }
 
@@ -66,7 +65,12 @@ public class LineController : MonoBehaviour
         if (Tiles.Count > 1 && Tiles[0].GetTileColor() == tile.GetTileColor() && tile.IsDot)
         {
             IsCompleted = true;
+            AudioManager.Instance.PlayDone();
             GameManager.Instance.CheckWin();
+        }
+        else
+        {
+            AudioManager.Instance.PlayUp();
         }
     }
 
