@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
@@ -15,6 +17,13 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         TouchHoverPosition(Input.mousePosition);
+        if (IsPointerOverUIElement() || 
+            GameManager.Instance.State == GameManager.GameState.Win ||
+            GameManager.Instance.State == GameManager.GameState.Lose)
+        {
+            touchHover.SetActive(false);
+            return;
+        }
         if (Input.GetMouseButtonDown(0))
             OnPress();
         else if (Input.GetMouseButton(0))
@@ -30,7 +39,8 @@ public class PlayerController : MonoBehaviour
         if (tile.CurrentLine != null)
         {
             LineController line = tile.CurrentLine;
-
+            TouchSetColor(tile.TileColor);
+            ActiveTouch(true);
             if (tile.IsDot && (tile == line.Tiles[0] || tile == line.Tiles[line.Tiles.Count - 1]))
             {
                 line.ClearLine();
@@ -48,7 +58,10 @@ public class PlayerController : MonoBehaviour
             _startTile = _currentLine.Tiles[0];
             return;
         }
-
+        if (GameManager.Instance.State == GameManager.GameState.Waiting)
+        {
+            GameManager.Instance.State = GameManager.GameState.Playing;
+        }
         if (tile.IsDot && !tile.CurrentLine)
         {
             ClearExistingLineOfSameColor(tile.GetTileColor());
@@ -133,8 +146,27 @@ public class PlayerController : MonoBehaviour
 
     public void TouchHoverPosition(Vector3 position)
     {
-        touchHover.transform.position = position; // vì Canvas ở chế độ Screen Space - Overlay
+        touchHover.transform.position = position;
     }
+    private bool IsPointerOverUIElement()
+    {
+        PointerEventData pointerEventData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
 
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerEventData, results);
+
+        foreach (RaycastResult unused in results)
+        {
+            if (unused.gameObject.layer == LayerMask.NameToLayer("UI"))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 }

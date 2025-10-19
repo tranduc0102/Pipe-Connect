@@ -13,16 +13,18 @@ public class AudioManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        _sfx.volume = PlayerPrefs.GetFloat("VolumnSFX", 1);
     }
 
     public void PlaySpawn()
     {
+        if (PlayerPrefs.GetFloat("VolumnSFX", 1) == 0) return;
         _sfx.DOKill(); 
         _sfx.volume = 0f;
         _sfx.pitch = Random.Range(0.95f, 1.05f);
         _sfx.PlayOneShot(_spawn);
 
-        DOTween.To(() => _sfx.volume, x => _sfx.volume = x, 1f, 0.1f);
+        DOTween.To(() => _sfx.volume, x => _sfx.volume = x, PlayerPrefs.GetFloat("VolumnSFX", 1), 0.1f);
     }
 
     public void PlayUp()
@@ -35,5 +37,12 @@ public class AudioManager : MonoBehaviour
     {
         _sfx.pitch = 1f;
         _sfx.PlayOneShot(_down);
+    }
+
+    public void SetValue(float value)
+    {
+        _sfx.volume = value;
+/*        _musicBG.volume = value;
+*/        PlayerPrefs.SetFloat("VolumnSFX", value);
     }
 }

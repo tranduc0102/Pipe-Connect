@@ -49,7 +49,7 @@ public class Tile : MonoBehaviour
         if (_render != null)
         {
             _render.material.DOKill();
-             Color tileColor = new Color(color.r + 50f / 255f, color.g + 50f / 255f, color.b + 50f / 255f);
+             Color tileColor = new Color(color.r - 50f / 255f, color.g - 50f / 255f, color.b - 50f / 255f);
             _render.material.DOColor(tileColor, 0.2f).SetEase(Ease.OutQuad);
         }
     }

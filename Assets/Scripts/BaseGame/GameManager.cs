@@ -16,42 +16,71 @@ public class GameManager : MonoBehaviour
     public GameObject dotPrefab;
     public GameObject obstaclePrefab;
     public readonly Color DEFAULT_COLOR = new Color32(0xA7, 0x9A, 0xCD, 0xFF);
-    [SerializeField] private int _currrentLevel;
-    public int CurrentLevel => _currrentLevel;
-    public Camera cam;
-    public TextMeshProUGUI _txtLevel;
+    private float time;
+    public int CurrentLevel
+    {
+        get => PlayerPrefs.GetInt("Current Level", 1);
+        set => PlayerPrefs.SetInt("Current Level", value);
+    }
+    private GameState _state;
+    public GameState State
+    {
+        get => _state;
+        set => _state = value;
+    }
     private void Awake()
     {
         Instance = this;
+        Application.targetFrameRate = 60;
     }
     private void Start()
     {
-        LoadLevel(_currrentLevel);
+        LoadLevel(CurrentLevel);
     }
     private void Update()
     {
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.C))
         {
             NextLevel();
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            NextLevel1();
+            Replay();
+        }
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            CurrentLevel = 1;
+            Replay();
+        }
+#endif
+        if (_state == GameState.Playing)
+        {
+            if (time > 0)
+            {
+                time -= Time.deltaTime;
+            }
+            if (time < 0)
+            {
+                if (_state == GameState.Win) return;
+                _state = GameState.Lose;
+                DOVirtual.DelayedCall(0.25f, () => UIManager.Instance.ShowResult(false, true));
+            }
+            UIManager.Instance.UpdateTime(Mathf.Max(0f, time));
         }
     }
-    public void NextLevel1()
+    public void Replay()
     {
-        _currrentLevel--;
         allTiles.Clear();
         ClearExisting();
-        LoadLevel(_currrentLevel);
+        LoadLevel(CurrentLevel);
     }
     public void NextLevel()
     {
-        _currrentLevel++;
+        CurrentLevel++;
         allTiles.Clear();
         ClearExisting();
-        LoadLevel(_currrentLevel);
+        LoadLevel(CurrentLevel);
     }
     public void RegisterTile(Tile tile)
     {
@@ -66,34 +95,27 @@ public class GameManager : MonoBehaviour
             if (!tile.IsOK)
                 return;
         }
-        Debug.Log("WIN");
-        DOVirtual.DelayedCall(0.5f, NextLevel);
+        _state = GameState.Win;
+        DOVirtual.DelayedCall(0.25f, () => UIManager.Instance.ShowResult(true, true));
     }
     void LoadLevel(int level)
     {
         string path = $"Levels/Level_{level}";
         TextAsset jsonFile = Resources.Load<TextAsset>(path);
-
+        _state = GameState.Waiting;
         if (jsonFile == null)
         {
             level = Random.Range(10, 21);
             path = $"Levels/Level_{level}";
             jsonFile = Resources.Load<TextAsset>(path);
         }
-        _txtLevel.transform.DOScale(Vector3.zero, 0.15f)
-                      .SetEase(Ease.OutBack).OnComplete(delegate
-                      {
-                          _txtLevel.text = "Level " + CurrentLevel;
-                          _txtLevel.transform.DOScale(Vector3.one, 0.25f)
-                  .SetEase(Ease.InBack);
-                      });
 
         LevelData data = JsonUtility.FromJson<LevelData>(jsonFile.text);
         generator.width = data.width;
         generator.height = data.height;
-        cam.fieldOfView = data.camSize;
         generator.GenerateTiles();
-
+        time = 120f;
+        UIManager.Instance.UpdateViewLevel(level, time);
         foreach (var tileData in data.tiles)
         {
             Tile tile = generator.tiles.Find(t => t.GridPos.x == tileData.x && t.GridPos.y == tileData.y);
@@ -133,5 +155,12 @@ public class GameManager : MonoBehaviour
         {
             line.ClearLine();
         }
+    }
+    public enum GameState
+    {
+        Waiting,
+        Playing,
+        Win,
+        Lose
     }
 }
