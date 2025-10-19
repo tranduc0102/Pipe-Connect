@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Camera _camera;
     [SerializeField] private LineController _linePrefab;
     public GameObject touchHover;
     public Image touchHoverImage;
@@ -116,7 +115,7 @@ public class PlayerController : MonoBehaviour
 
     private Tile GetTileUnderMouse()
     {
-        Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = GameManager.Instance.Camera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
             return hit.collider.GetComponent<Tile>();
         return null;

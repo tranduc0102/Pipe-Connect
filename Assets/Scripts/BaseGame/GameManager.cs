@@ -11,7 +11,8 @@ public class GameManager : MonoBehaviour
 
     [Header("References")]
     public MapGenerator generator;
-
+    [SerializeField] private Camera _cam;
+    public Camera Camera => _cam;
     [Header("Prefabs")]
     public GameObject dotPrefab;
     public GameObject obstaclePrefab;
@@ -113,6 +114,12 @@ public class GameManager : MonoBehaviour
         LevelData data = JsonUtility.FromJson<LevelData>(jsonFile.text);
         generator.width = data.width;
         generator.height = data.height;
+        float targetAspect = 10.8f / 19.2f;
+        float currentAspect = (float)Screen.width / Screen.height;
+
+        float verticalFOV = (data.camSize - 1.5f) * (targetAspect / currentAspect);
+        Camera.main.fieldOfView = verticalFOV;
+
         generator.GenerateTiles();
         time = 120f;
         UIManager.Instance.UpdateViewLevel(level, time);

@@ -259,7 +259,7 @@ MonoBehaviour:
   m_IsTrail: 0
   m_IgnoreCanvasScaler: 0
   m_AbsoluteMode: 0
-  m_Scale3D: {x: 26.5, y: 26.5, z: 26.5}
+  m_Scale3D: {x: 60, y: 60, z: 60}
   m_AnimatableProperties: []
   m_Particles:
   - {fileID: 513960585}
@@ -5384,7 +5384,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: -0.13052624, y: 0, z: 0, w: 0.9914449}
-  m_LocalPosition: {x: 0.02028322, y: -16.37865, z: -63.06659}
+  m_LocalPosition: {x: 0, y: -16.37865, z: -63.06659}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5697,7 +5697,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5f00b254482fcb4c974b26a59bfa0cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 963194227}
   _linePrefab: {fileID: 565303268867481375, guid: 41ac581d79b6e9740841c679838a5b5a, type: 3}
   touchHover: {fileID: 493007767}
   touchHoverImage: {fileID: 493007769}
@@ -5715,6 +5714,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allTiles: []
   generator: {fileID: 1660724322}
+  _cam: {fileID: 963194227}
   dotPrefab: {fileID: 320119366639249810, guid: 60080c0056ad1b146a757713849cc93c, type: 3}
   obstaclePrefab: {fileID: 320119366639249810, guid: 843e585079beca644bfcd0f87e26b2b4, type: 3}
 --- !u!1 &1660724320
@@ -9211,15 +9211,15 @@ MonoBehaviour:
   mainRect: {fileID: 2567641359354409524}
   scaler: {fileID: 6844001797474375396}
   cam: {fileID: 963194227}
-  aspect: 0.62485313
+  aspect: 0.5625
   refAspect: 0.5625
   fatCanvas: 0
   postEvent: 0
-  AspectCam: 1.600376
-  changeCamSize: 1
+  AspectCam: 1.7777778
+  changeCamSize: 0
   defaultCamSize2D: 10
   defaultCamSize3D: 30
-  multiplierCamSize: 0.7667101
+  multiplierCamSize: 0.8333333
   changeCanvasScaler: 0
   Resolutions:
   - Name: Square Phone
