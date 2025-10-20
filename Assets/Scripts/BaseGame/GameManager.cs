@@ -9,35 +9,40 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     [SerializeField] private List<Tile> allTiles = new List<Tile>();
 
-    [Header("References")]
-    public MapGenerator generator;
+    [Header("References")] public MapGenerator generator;
     [SerializeField] private Camera _cam;
     public Camera Camera => _cam;
-    [Header("Prefabs")]
-    public GameObject dotPrefab;
+    [Header("Prefabs")] public GameObject dotPrefab;
     public GameObject obstaclePrefab;
     public readonly Color DEFAULT_COLOR = new Color32(0xA7, 0x9A, 0xCD, 0xFF);
     private float time;
+    [SerializeField] private int currentLevel;
+
     public int CurrentLevel
     {
         get => PlayerPrefs.GetInt("Current Level", 1);
         set => PlayerPrefs.SetInt("Current Level", value);
     }
+
     private GameState _state;
+
     public GameState State
     {
         get => _state;
         set => _state = value;
     }
+
     private void Awake()
     {
         Instance = this;
         Application.targetFrameRate = 60;
     }
+
     private void Start()
     {
         LoadLevel(CurrentLevel);
     }
+
     private void Update()
     {
 #if UNITY_EDITOR
@@ -45,10 +50,12 @@ public class GameManager : MonoBehaviour
         {
             NextLevel();
         }
+
         if (Input.GetKeyDown(KeyCode.Z))
         {
             Replay();
         }
+
         if (Input.GetKeyDown(KeyCode.X))
         {
             CurrentLevel = 1;
@@ -61,6 +68,7 @@ public class GameManager : MonoBehaviour
             {
                 time -= Time.deltaTime;
             }
+
             if (time < 0)
             {
                 if (_state == GameState.Win) return;
@@ -71,15 +79,18 @@ public class GameManager : MonoBehaviour
                     UIManager.Instance.ShowResult(false, true);
                 });
             }
+
             UIManager.Instance.UpdateTime(Mathf.Max(0f, time));
         }
     }
+
     public void Replay()
     {
         allTiles.Clear();
         ClearExisting();
         LoadLevel(CurrentLevel);
     }
+
     public void NextLevel()
     {
         CurrentLevel++;
@@ -87,6 +98,7 @@ public class GameManager : MonoBehaviour
         ClearExisting();
         LoadLevel(CurrentLevel);
     }
+
     public void RegisterTile(Tile tile)
     {
         if (!allTiles.Contains(tile))
@@ -100,12 +112,15 @@ public class GameManager : MonoBehaviour
             if (!tile.IsOK)
                 return;
         }
+
         _state = GameState.Win;
-        DOVirtual.DelayedCall(0.25f, () => {
+        DOVirtual.DelayedCall(0.25f, () =>
+        {
             AudioManager.Instance.PlayWin();
             UIManager.Instance.ShowResult(true, true);
-        }); 
+        });
     }
+
     void LoadLevel(int level)
     {
         string path = $"Levels/Level_{level}";
@@ -115,7 +130,7 @@ public class GameManager : MonoBehaviour
         if (jsonFile == null)
         {
             levelnew = Random.Range(10, 21);
-            path = $"Levels/Level_{level}";
+            path = $"Levels/Level_{levelnew}";
             jsonFile = Resources.Load<TextAsset>(path);
         }
 
@@ -126,11 +141,11 @@ public class GameManager : MonoBehaviour
         float currentAspect = (float)Screen.width / Screen.height;
 
         float verticalFOV = (data.camSize - 1.5f) * (targetAspect / currentAspect);
-        Camera.main.fieldOfView = verticalFOV;
+        _cam.fieldOfView = verticalFOV;
 
         generator.GenerateTiles();
         time = 120f;
-        UIManager.Instance.UpdateViewLevel(levelnew, time);
+        UIManager.Instance.UpdateViewLevel(level, time);
         foreach (var tileData in data.tiles)
         {
             Tile tile = generator.tiles.Find(t => t.GridPos.x == tileData.x && t.GridPos.y == tileData.y);
@@ -141,11 +156,12 @@ public class GameManager : MonoBehaviour
             {
                 RegisterTile(tile);
             }
+
             if (tileData.isDot)
                 SpawnVisual(tile, dotPrefab, tileData.color);
-
         }
     }
+
     private void SpawnVisual(Tile tile, GameObject prefab, Color color)
     {
         if (prefab == null) return;
@@ -163,6 +179,7 @@ public class GameManager : MonoBehaviour
         else if (prefab.name.ToLower().Contains("obstacle"))
             obj.tag = "Obstacle";
     }
+
     private void ClearExisting()
     {
         LineController[] allLines = FindObjectsOfType<LineController>();
@@ -171,6 +188,7 @@ public class GameManager : MonoBehaviour
             line.ClearLine();
         }
     }
+
     public enum GameState
     {
         Waiting,
